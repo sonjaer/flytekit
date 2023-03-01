@@ -17,6 +17,7 @@ from flytekit.models.admin import workflow as admin_workflow_models
 from flytekit.models.admin.workflow import WorkflowSpec
 from flytekit.models.core import identifier as _identifier
 from flytekit.models.task import TaskSpec
+from flytekit.remote import FlyteTask
 from flytekit.tools.translator import FlyteControlPlaneEntity, Options, get_serializable
 
 
@@ -38,6 +39,10 @@ def _should_register_with_admin(entity) -> bool:
     This is used in the code below. The translator.py module produces lots of objects (namely nodes and BranchNodes)
     that do not/should not be written to .pb file to send to admin. This function filters them out.
     """
+    is_remote = isinstance(entity, FlyteTask)
+    if is_remote:
+        return False
+
     return isinstance(
         entity, (task_models.TaskSpec, _launch_plan_models.LaunchPlan, admin_workflow_models.WorkflowSpec)
     )
